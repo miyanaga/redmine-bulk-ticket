@@ -1,0 +1,77 @@
+<div id="bulk-ticket">
+
+  <% if subprojects.present? and subprojects.length > 0 %>
+  <p id="bulk-ticket-subprojects">
+    <label><%= l :label_subprojects %></label>
+    <span class="selection">
+      <span class="controll">
+        <span class="hint"><%= l :hint_subprojects %></span>
+        <a href="#" class="select-all"><%= l :label_select_all %></a>
+        <a href="#" class="unselect-all"><%= l :label_unselect_all %></a>
+      </span>
+      <span class="items">
+      <% subprojects.each do |sp| %>
+        <label>
+          <%= check_box_tag "issue[subprojects[#{sp.id}]]", true, subproject_relations[sp.id], { :class => 'subproject', :disabled => subproject_relations[sp.id] ? true : false } %>
+          <%= h sp.name %>
+        </label>
+      <% end %>
+      </span>
+    </span>
+  </p>
+  <% end %>
+
+  <% if members.present? and members.length > 0 %>
+  <p id="bulk-ticket-members">
+    <label><%= l :label_members %></label>
+    <span class="selection">
+      <span class="controll">
+        <span class="hint"><%= l :hint_members %></span>
+        <a href="#" class="select-all"><%= l :label_select_all %></a>
+        <a href="#" class="unselect-all"><%= l :label_unselect_all %></a>
+      </span>
+      <span class="items">
+      <% members.each do |m| %>
+        <label>
+          <%= check_box_tag "issue[members[#{m.id}]]", true, member_relations[m.id], { :class => 'member', :disabled => member_relations[m.id] ? true : false } %>
+          <%= h m.name %>
+        </label>
+      <% end %>
+      </span>
+    </span>
+  </p>
+  <% end %>
+</div>
+
+<style>
+#bulk-ticket .selection {
+  display: inline-block;
+}
+#bulk-ticket .selection .controll {
+  display: block;
+}
+#bulk-ticket .selection label {
+  margin-left: 0px;
+  width: auto;
+  min-width: 175px;
+  text-align: left;
+  float: none;
+}
+</style>
+
+<script type="text/javascript">
+jQuery(function($) {
+  $('.selection').each(function() {
+    var $selection = $(this);
+    $selection.find('.select-all,.unselect-all').click(function() {
+      var $anchor = $(this);
+      $selection.find('input[type=checkbox]').each(function() {
+        if ( !$(this).attr('disabled') ) {
+          $(this).attr('checked', $anchor.hasClass('select-all'));
+        }
+      });
+      return false;
+    });
+  })
+})
+</script>
