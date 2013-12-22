@@ -93,8 +93,6 @@ class BulkTicketHooks < Redmine::Hook::Listener
       :id => orig.id
     })
 
-    binding.pry
-
     if values[:subprojects].present?
       values[:subprojects].keys.each do |pid|
         project = Project.find(pid)
