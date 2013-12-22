@@ -5,6 +5,10 @@ Redmine::Plugin.register :redmine_bulk_ticket do
   version '0.0.1'
   url 'https://github.com/miyanaga/redmine-bulk-ticket'
   author_url 'http://www.ideamans.com/'
+
+  project_module :bulk_ticket do
+    permission :bulk_ticket, :issues => :bulk_ticket
+  end
 end
 
 require 'issue'
@@ -24,7 +28,6 @@ module QueriesHelper
 
   def column_value_with_my_column_value(column, issue, value)
     if column.name == :sub_issues
-      pp value
       value
     else
       column_value_without_my_column_value(column, issue, value)
@@ -73,7 +76,14 @@ class BulkTicketHooks < Redmine::Hook::Listener
   include ActionDispatch::Routing
   include Rails.application.routes.url_helpers
 
+  def self.enabled_bulk_ticket_module(project)
+  end
+
   def controller_issues_edit_after_save(context = {})
+    current_project = context[:issue].project
+    return unless current_project.module_enabled? :bulk_ticket
+    return unless User.current.allowed_to? :bulk_ticket, current_project
+
     params = context[:params]
     values = params[:issue]
     orig = context[:issue]
@@ -82,6 +92,8 @@ class BulkTicketHooks < Redmine::Hook::Listener
       :url => url_for(:controller => 'issues', :action => 'show', :id => orig.id),
       :id => orig.id
     })
+
+    binding.pry
 
     if values[:subprojects].present?
       values[:subprojects].keys.each do |pid|
@@ -108,11 +120,13 @@ class BulkTicketHooks < Redmine::Hook::Listener
 
   class ViewHook < Redmine::Hook::ViewListener
     def view_issues_form_details_bottom(context = {})
+      return unless context[:project].module_enabled? :bulk_ticket
+      return unless User.current.allowed_to? :bulk_ticket, context[:project]
+
       issue = context[:issue]
       return if issue.id.nil?
 
       project = context[:project]
-
       subprojects = project.children.visible.all
       members = project.members.map(&:user)
 

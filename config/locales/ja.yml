@@ -7,3 +7,4 @@ ja:
   label_unselect_all: すべて解除
   bulk_ticket_new_desc: 詳しくは親チケット \#%{id} を参照ください。
   field_sub_issues: 子チケットの状況
+  permission_bulk_ticket: まとめて子チケット発行
